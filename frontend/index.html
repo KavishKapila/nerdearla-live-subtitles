@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Nerdearla Live Subtitles</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: { colors: {
+      ink: { 950: '#0A0D14', 900: '#10141F', 800: '#171D2E', 700: '#1E2540', 600: '#2A3149' },
+      mist: { 100: '#EDEFF5', 300: '#B4BAD1', 400: '#8B93AD', 500: '#6B7290' },
+      gold: { 300: '#F8D77A', 400: '#F4C542', 500: '#DDA92E' },
+      seaglass: { 400: '#35C7B8', 500: '#279C90' },
+      live: { 500: '#FF4757' },
+    }, fontFamily: {
+      display: ['"Space Grotesk"', 'ui-sans-serif', 'sans-serif'],
+      sans: ['Inter', 'ui-sans-serif', 'sans-serif'],
+    } } }
+  };
+</script>
+<style>
+  :root { color-scheme: dark; }
+  html, body { height: 100%; background: #10141F; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #2A3149; border-radius: 999px; }
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,71,87,.45); }
+    50% { opacity: .55; box-shadow: 0 0 0 6px rgba(255,71,87,0); }
+  }
+  .animate-pulse-live { animation: pulse-live 1.6s ease-in-out infinite; }
+  @keyframes caption-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .caption-row { animation: caption-in .25s ease-out; }
+  .eq-bar { transition: height 90ms ease-out; }
+  .hide-original .col-original { display: none; }
+  .hide-translation .col-translation { display: none; }
+  .font-scale-1 { --cap-size: 1.375rem; }
+  .font-scale-2 { --cap-size: 1.75rem; }
+  .font-scale-3 { --cap-size: 2.25rem; }
+  .font-scale-4 { --cap-size: 2.85rem; }
+</style>
+</head>
+
+<body class="bg-ink-900 text-mist-100 font-sans antialiased min-h-screen flex flex-col">
+
+<header class="sticky top-0 z-30 border-b border-ink-600/70 bg-ink-900/90 backdrop-blur">
+  <div class="mx-auto max-w-5xl px-4 sm:px-6 h-14 flex items-center gap-2">
+    <button id="btn-back" class="hidden shrink-0 h-9 w-9 grid place-items-center rounded-full hover:bg-ink-800 text-mist-300">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="flex items-center gap-2 min-w-0">
+      <span id="rec-dot" class="hidden h-2 w-2 shrink-0 rounded-full bg-live-500 animate-pulse-live"></span>
+      <h1 id="header-title" class="font-display font-semibold tracking-tight text-mist-100 truncate">Nerdearla Live Subtitles</h1>
+    </div>
+    <div class="ml-auto flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 text-xs text-mist-400">
+        <span id="conn-dot" class="h-1.5 w-1.5 rounded-full bg-mist-400"></span>
+        <span id="conn-label" class="hidden sm:inline">offline</span>
+      </div>
+      <button id="btn-settings" class="h-9 w-9 grid place-items-center rounded-full hover:bg-ink-800 text-mist-400">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 005 15a1.65 1.65 0 00-1.51-1H3.4a2 2 0 110-4h.09A1.65 1.65 0 005 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 5a1.65 1.65 0 001-1.51V3.4a2 2 0 114 0v.09A1.65 1.65 0 0015 5a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="flex-1 flex flex-col mx-auto w-full max-w-5xl">
+
+  <!-- LOBBY -->
+  <section id="view-lobby" class="flex-1 px-4 sm:px-6 py-8 w-full">
+    <div class="max-w-xl mx-auto">
+      <p class="text-mist-400 text-sm mb-8 leading-relaxed">
+        Every talk gets its own channel. Go live to broadcast a room's audio, upload a
+        recording to transcribe it, or join an existing channel to read live captions.
+      </p>
+
+      <form id="form-create" class="rounded-2xl border border-ink-600/70 bg-ink-800/60 p-4 sm:p-5 mb-8">
+        <label class="block text-sm font-medium text-mist-300 mb-1.5" for="input-name">New session name</label>
+        <input id="input-name" required maxlength="120" placeholder="e.g. Main Stage — Opening Keynote"
+               class="w-full rounded-lg bg-ink-900 border border-ink-600 px-3 py-2.5 text-mist-100 placeholder-mist-400/60 focus:outline-none focus:ring-2 focus:ring-gold-400/70" />
+
+        <div class="mt-3 flex items-center gap-3">
+          <label class="text-sm text-mist-300" for="select-target">Translate to</label>
+          <select id="select-target" class="flex-1 rounded-lg bg-ink-900 border border-ink-600 px-3 py-2 text-mist-100 focus:outline-none focus:ring-2 focus:ring-gold-400/70">
+            <option value="auto" selected>Auto (Spanish, or English if the talk is in Spanish)</option>
+            <option value="es">Always Spanish</option>
+            <option value="en">Always English</option>
+          </select>
+        </div>
+
+        <div class="mt-4 flex gap-2">
+          <button type="submit" class="flex-1 rounded-lg bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold py-2.5">Create live session</button>
+          <button type="button" id="btn-upload-open" class="flex-1 rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-100 font-semibold py-2.5">Upload video / audio</button>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-ink-600/50">
+          <p class="text-xs text-mist-500 mb-2">No microphone handy? Try a bundled sample:</p>
+          <div class="flex gap-2">
+            <button type="button" id="btn-sample-en" class="flex-1 rounded-lg border border-ink-600 hover:bg-ink-700 text-mist-200 text-xs font-medium py-2">▶ Try sample (English)</button>
+            <button type="button" id="btn-sample-es" class="flex-1 rounded-lg border border-ink-600 hover:bg-ink-700 text-mist-200 text-xs font-medium py-2">▶ Probar ejemplo (Español)</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-display font-semibold text-mist-100">Sessions</h2>
+        <span id="session-count" class="text-xs text-mist-400"></span>
+      </div>
+      <div id="session-list" class="space-y-3"></div>
+      <p id="empty-state" class="hidden text-sm text-mist-400 border border-dashed border-ink-600 rounded-xl p-6 text-center">
+        No sessions yet — create one above to start broadcasting.
+      </p>
+    </div>
+  </section>
+
+  <!-- SPEAKER -->
+  <section id="view-speaker" class="hidden flex-1 px-4 sm:px-6 py-8 w-full">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-2xl border border-ink-600/70 bg-ink-800/60 p-5 sm:p-6 flex flex-col items-center text-center">
+        <div class="flex items-end justify-center gap-1.5 h-24" id="eq-bars"></div>
+        <button id="btn-toggle-broadcast" class="mt-6 inline-flex items-center gap-2 rounded-full bg-live-500 hover:brightness-110 text-white font-semibold px-6 py-3 transition">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M12 19v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span id="btn-toggle-broadcast-label">Start broadcasting</span>
+        </button>
+        <p class="mt-3 text-xs text-mist-400 max-w-xs">Streams this device's microphone to listeners as live captions.</p>
+
+        <div class="mt-6 w-full pt-5 border-t border-ink-600/70 text-left">
+          <p class="text-xs font-medium text-mist-300 mb-2">Share the listener link</p>
+          <div class="flex items-center gap-2">
+            <input id="share-link" readonly class="flex-1 min-w-0 rounded-lg bg-ink-900 border border-ink-600 px-3 py-2 text-xs text-mist-300 truncate" />
+            <button id="btn-copy-link" class="shrink-0 h-9 w-9 grid place-items-center rounded-lg border border-ink-600 hover:bg-ink-700 text-mist-300">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+          </div>
+
+          <div class="mt-4 flex items-start gap-4">
+            <img id="qr-code" class="w-32 h-32 rounded-lg bg-white p-1.5" alt="QR" />
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-mist-400 leading-relaxed">Point your phone's camera at the QR code to open the listener view.</p>
+              <p class="mt-4 text-xs font-medium text-mist-300">Export subtitles</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <a id="dl-srt-both" class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.srt · bilingual</a>
+                <a id="dl-srt-orig" class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.srt · original</a>
+                <a id="dl-vtt"      class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.vtt</a>
+                <a id="dl-json"     class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.json</a>
+                <a id="dl-txt"      class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.txt</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-ink-600/70 bg-ink-800/60 p-5 sm:p-6 flex flex-col min-h-[20rem]">
+        <p class="text-xs font-medium text-mist-300 mb-3">Live transcript preview</p>
+        <div id="speaker-preview" class="flex-1 overflow-y-auto space-y-2 text-sm text-mist-300 pr-1"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTENER: two-column layout -->
+  <section id="view-listener" class="hidden flex-1 flex flex-col w-full">
+    <div id="upload-progress-banner" class="hidden px-4 sm:px-6 py-3 border-b border-ink-600/50 bg-ink-800/40">
+      <div class="flex items-center gap-3 text-xs">
+        <svg class="animate-spin shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+        <span id="upload-banner-label" class="text-mist-300 shrink-0">Processing…</span>
+        <div class="flex-1 h-1.5 rounded-full bg-ink-700 overflow-hidden">
+          <div id="upload-banner-bar" class="h-full bg-gold-400 transition-all" style="width:0%"></div>
+        </div>
+        <span id="upload-banner-pct" class="text-mist-400 shrink-0 w-10 text-right">0%</span>
+      </div>
+    </div>
+
+    <div class="px-4 sm:px-6 py-3 flex items-center gap-2 border-b border-ink-600/50">
+      <div class="flex rounded-full border border-ink-600 overflow-hidden text-xs">
+        <button data-show="both" class="show-toggle px-3 py-1.5 bg-ink-700 text-mist-100">Both</button>
+        <button data-show="original" class="show-toggle px-3 py-1.5 text-mist-400">Original</button>
+        <button data-show="translation" class="show-toggle px-3 py-1.5 text-mist-400">Español</button>
+      </div>
+      <div class="ml-auto flex items-center gap-1">
+        <button id="btn-font-down" class="h-8 w-8 grid place-items-center rounded-full hover:bg-ink-800 text-mist-300">A−</button>
+        <button id="btn-font-up" class="h-8 w-8 grid place-items-center rounded-full hover:bg-ink-800 text-mist-300">A+</button>
+      </div>
+    </div>
+
+    <!-- Two-column caption history -->
+    <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4" id="caption-history-wrap">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="col-original">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gold-300 mb-2 pb-2 border-b border-ink-700/60">Original</p>
+          <div id="caption-history-original" class="space-y-2"></div>
+        </div>
+        <div class="col-translation">
+          <p class="text-xs font-semibold uppercase tracking-wider text-seaglass-400 mb-2 pb-2 border-b border-ink-700/60">Español</p>
+          <div id="caption-history-translation" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live caption strip + downloads -->
+    <div class="border-t border-ink-600/70 bg-ink-900/95 px-4 sm:px-6 py-5 space-y-3">
+      <div class="grid grid-cols-2 gap-4 font-scale-2">
+        <p class="col-original text-gold-300 font-display font-medium" style="font-size:var(--cap-size,1.75rem);line-height:1.35" id="live-original">Waiting for the speaker to start…</p>
+        <p class="col-translation text-seaglass-400 font-display font-medium" style="font-size:var(--cap-size,1.75rem);line-height:1.35" id="live-translation"></p>
+      </div>
+
+      <div class="pt-3 border-t border-ink-700/60 flex flex-wrap gap-1.5">
+        <a id="ls-dl-txt"      class="text-xs font-medium rounded-lg bg-seaglass-500/20 hover:bg-seaglass-500/30 text-seaglass-400 px-2.5 py-1.5" download>📄 .txt</a>
+        <a id="ls-dl-srt-both" class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.srt · bilingual</a>
+        <a id="ls-dl-srt-orig" class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.srt · original</a>
+        <a id="ls-dl-vtt"      class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.vtt</a>
+        <a id="ls-dl-json"     class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-200 px-2.5 py-1.5" download>.json</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- SETTINGS -->
+<div id="settings-backdrop" class="hidden fixed inset-0 z-40 bg-ink-950/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+  <div class="w-full max-w-sm rounded-2xl border border-ink-600 bg-ink-800 p-5">
+    <h3 class="font-display font-semibold mb-1">Backend connection</h3>
+    <p class="text-xs text-mist-400 mb-3">Host and port where the FastAPI backend is running.</p>
+    <input id="input-backend-host" class="w-full rounded-lg bg-ink-900 border border-ink-600 px-3 py-2 text-sm text-mist-100 mb-4" placeholder="localhost:8000" />
+    <div class="flex gap-2 justify-end">
+      <button id="btn-settings-cancel" class="px-4 py-2 rounded-lg text-sm text-mist-300 hover:bg-ink-700">Cancel</button>
+      <button id="btn-settings-save" class="px-4 py-2 rounded-lg text-sm bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold">Save & reload</button>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div id="upload-backdrop" class="hidden fixed inset-0 z-40 bg-ink-950/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+  <div class="w-full max-w-md rounded-2xl border border-ink-600 bg-ink-800 p-5 max-h-[90vh] overflow-y-auto">
+    <h3 class="font-display font-semibold mb-1">Upload a video or audio file</h3>
+    <p class="text-xs text-mist-400 mb-4">Any common format works: mp4, mov, mkv, webm, mp3, wav, m4a.</p>
+
+    <label class="block text-xs font-medium text-mist-300 mb-1.5" for="upload-name">Session name</label>
+    <input id="upload-name" placeholder="e.g. Opening Keynote Recording" class="w-full rounded-lg bg-ink-900 border border-ink-600 px-3 py-2 text-sm text-mist-100 mb-3 focus:outline-none focus:ring-2 focus:ring-gold-400/70" />
+
+    <label class="block text-xs font-medium text-mist-300 mb-1.5" for="upload-target">Translate to</label>
+    <select id="upload-target" class="w-full rounded-lg bg-ink-900 border border-ink-600 px-3 py-2 text-sm text-mist-100 mb-3 focus:outline-none focus:ring-2 focus:ring-gold-400/70">
+      <option value="auto" selected>Auto (Spanish, or English if the talk is in Spanish)</option>
+      <option value="es">Always Spanish</option>
+      <option value="en">Always English</option>
+    </select>
+
+    <div id="upload-dropzone" class="mt-2 rounded-xl border-2 border-dashed border-ink-600 hover:border-gold-400/60 bg-ink-900/60 px-4 py-8 text-center cursor-pointer">
+      <svg class="mx-auto mb-3 text-mist-400" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p id="upload-filename" class="text-sm text-mist-300">Click to choose a file, or drop one here</p>
+      <p class="text-[11px] text-mist-500 mt-1">Max 500 MB</p>
+    </div>
+
+    <input id="input-upload-file" type="file" class="hidden" accept="video/*,audio/*,.mp4,.mov,.mkv,.webm,.avi,.mp3,.wav,.m4a,.ogg,.flac" />
+
+    <div id="upload-progress-wrap" class="hidden mt-4">
+      <div class="flex items-center justify-between text-xs text-mist-400 mb-1">
+        <span id="upload-progress-label">Uploading…</span>
+        <span id="upload-progress-pct">0%</span>
+      </div>
+      <div class="h-1.5 rounded-full bg-ink-700 overflow-hidden">
+        <div id="upload-progress-bar" class="h-full bg-gold-400 transition-all" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="flex gap-2 justify-end mt-5">
+      <button id="upload-cancel" class="px-4 py-2 rounded-lg text-sm text-mist-300 hover:bg-ink-700">Cancel</button>
+      <button id="upload-submit" class="px-4 py-2 rounded-lg text-sm bg-gold-400 hover:bg-gold-300 text-ink-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed" disabled>Upload &amp; transcribe</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 rounded-full bg-ink-700 border border-ink-600 px-4 py-2 text-sm text-mist-100 shadow-lg"></div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  function showToast(msg, ms) {
+    const el = $("#toast");
+    el.textContent = msg;
+    el.classList.remove("hidden");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.classList.add("hidden"), ms || 3200);
+  }
+  const LANG_LABEL = { en: "English", es: "Español", auto: "Auto" };
+
+  function defaultBackendHost() {
+    if (location.protocol === "file:" || !location.host) return "localhost:8000";
+    if (location.port === "8000") return location.host;
+    return location.hostname + ":8000";
+  }
+  function backendHost() { return localStorage.getItem("nerdearla_backend_host") || defaultBackendHost(); }
+  function apiBase() { return (location.protocol === "https:" ? "https" : "http") + "://" + backendHost(); }
+  function wsBase()  { return (location.protocol === "https:" ? "wss" : "ws") + "://" + backendHost(); }
+
+  const state = { view: "lobby", sessionId: null };
+
+  function setHeader(o) {
+    o = o || {};
+    $("#btn-back").classList.toggle("hidden", !o.back);
+    $("#header-title").textContent = o.title || "Nerdearla Live Subtitles";
+    $("#rec-dot").classList.toggle("hidden", !o.live);
+  }
+  function showView(name) {
+    ["lobby", "speaker", "listener"].forEach((v) => $("#view-" + v).classList.toggle("hidden", v !== name));
+    state.view = name;
+  }
+  function navigate(view, sessionId, opts) {
+    opts = opts || {};
+    teardown();
+    state.view = view;
+    state.sessionId = sessionId || null;
+    const params = new URLSearchParams();
+    if (view !== "lobby") params.set("view", view);
+    if (sessionId) params.set("session", sessionId);
+    if (opts.name) params.set("name", opts.name);
+    const qs = params.toString();
+    history.pushState({}, "", qs ? "?" + qs : location.pathname);
+
+    if (view === "lobby") { showView("lobby"); setHeader(); refreshSessions(); sessionsPoll(true); }
+    else if (view === "speaker") { showView("speaker"); enterSpeaker(sessionId, opts.name); }
+    else if (view === "listener") { showView("listener"); enterListener(sessionId, opts.name); }
+  }
+  function teardown() {
+    if (state.view === "speaker") stopBroadcast(false);
+    if (state.view === "listener") disconnectListener();
+    sessionsPoll(false);
+  }
+  window.addEventListener("popstate", () => {
+    const p = new URLSearchParams(location.search);
+    navigate(p.get("view") || "lobby", p.get("session"), { name: p.get("name") });
+  });
+  function setConnStatus(connected) {
+    $("#conn-dot").className = "h-1.5 w-1.5 rounded-full " + (connected ? "bg-seaglass-400" : "bg-live-500");
+    $("#conn-label").textContent = connected ? "connected" : "offline";
+  }
+
+  // LOBBY
+  let pollTimer = null;
+  function sessionsPoll(on) { clearInterval(pollTimer); if (on) pollTimer = setInterval(refreshSessions, 4000); }
+  async function refreshSessions() {
+    try {
+      const res = await fetch(apiBase() + "/api/sessions");
+      if (!res.ok) throw new Error("bad");
+      const data = await res.json();
+      renderSessionList(data.sessions || []);
+      setConnStatus(true);
+    } catch (e) { setConnStatus(false); }
+  }
+  function statusPill(s) {
+    if (s.mode === "upload") {
+      if (s.status === "processing") return '<span class="inline-flex items-center gap-1 text-gold-300"><span class="h-1.5 w-1.5 rounded-full bg-gold-400 animate-pulse"></span>Transcribing…</span>';
+      if (s.status === "done")       return '<span class="inline-flex items-center gap-1 text-seaglass-400"><span class="h-1.5 w-1.5 rounded-full bg-seaglass-400"></span>Ready</span>';
+      if (s.status === "error")      return '<span class="inline-flex items-center gap-1 text-red-300"><span class="h-1.5 w-1.5 rounded-full bg-red-400"></span>Error</span>';
+      return '<span class="text-mist-400">Upload</span>';
+    }
+    return s.is_broadcasting
+      ? '<span class="inline-flex items-center gap-1 text-gold-300"><span class="h-1.5 w-1.5 rounded-full bg-gold-400"></span>Live</span>'
+      : '<span class="inline-flex items-center gap-1 text-mist-400"><span class="h-1.5 w-1.5 rounded-full bg-mist-400"></span>Idle</span>';
+  }
+  function renderSessionList(sessions) {
+    const list = $("#session-list");
+    $("#session-count").textContent = sessions.length ? sessions.length + " active" : "";
+    $("#empty-state").classList.toggle("hidden", sessions.length !== 0);
+    list.innerHTML = sessions.map((s) => {
+      const live = s.is_broadcasting || s.status === "processing";
+      const isUpload = s.mode === "upload";
+      const name = escapeHtml(s.name || "(untitled)");
+      return '<div class="flex items-stretch rounded-xl border border-ink-600/70 bg-ink-800/50 overflow-hidden">' +
+        '<div class="w-1 shrink-0 ' + (live ? "bg-gold-400" : "bg-ink-600") + '"></div>' +
+        '<div class="flex-1 min-w-0 p-4">' +
+          '<p class="font-display font-medium text-mist-100 truncate">' + name + '</p>' +
+          '<div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-mist-400">' +
+            statusPill(s) +
+            '<span>' + s.listener_count + ' listening</span>' +
+            '<span>→ ' + (LANG_LABEL[s.target_language] || s.target_language) + '</span>' +
+            (isUpload && s.filename ? '<span class="text-mist-500">· ' + escapeHtml(s.filename) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="flex flex-col justify-center gap-1.5 p-3 shrink-0">' +
+          '<button data-action="listen" data-id="' + s.id + '" data-name="' + name + '" class="text-xs font-medium rounded-lg bg-seaglass-500/20 hover:bg-seaglass-500/30 text-seaglass-400 px-3 py-1.5">Listen</button>' +
+          (!isUpload ? '<button data-action="broadcast" data-id="' + s.id + '" data-name="' + name + '" class="text-xs font-medium rounded-lg bg-ink-700 hover:bg-ink-600 text-mist-300 px-3 py-1.5">Broadcast</button>' : '') +
+          '<button data-action="delete" data-id="' + s.id + '" data-name="' + name + '" class="text-xs font-medium rounded-lg bg-red-900/30 hover:bg-red-900/50 text-red-300 px-3 py-1.5">Delete</button>' +
+        '</div></div>';
+    }).join("");
+  }
+  $("#session-list").addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    const action = btn.dataset.action, id = btn.dataset.id, name = btn.dataset.name;
+    if (action === "delete") {
+      if (!confirm('Delete session "' + name + '"?')) return;
+      try {
+        const res = await fetch(apiBase() + "/api/sessions/" + id, { method: "DELETE" });
+        if (!res.ok) throw new Error(await res.text());
+        showToast("Session deleted.");
+        refreshSessions();
+      } catch (err) { showToast("Couldn't delete: " + err.message); }
+      return;
+    }
+    if (action === "listen")    { navigate("listener", id, { name }); return; }
+    if (action === "broadcast") { navigate("speaker", id, { name }); return; }
+  });
+  $("#form-create").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = $("#input-name").value.trim();
+    const target_language = $("#select-target").value;
+    if (!name) return;
+    try {
+      const res = await fetch(apiBase() + "/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, target_language }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const session = await res.json();
+      $("#input-name").value = "";
+      navigate("speaker", session.id, { name: session.name });
+    } catch { showToast("Couldn't reach the backend — check Settings."); }
+  });
+
+  // SPEAKER
+  const WORKLET_SRC = "class PCMWorkletProcessor extends AudioWorkletProcessor { constructor() { super(); this.buf = []; this.chunkSize = 4096; } process(inputs) { const ch = inputs[0] && inputs[0][0]; if (ch) { for (let i = 0; i < ch.length; i++) this.buf.push(ch[i]); while (this.buf.length >= this.chunkSize) { const slice = this.buf.splice(0, this.chunkSize); const out = new Int16Array(slice.length); for (let i = 0; i < slice.length; i++) { const s = Math.max(-1, Math.min(1, slice[i])); out[i] = s < 0 ? s * 0x8000 : s * 0x7fff; } this.port.postMessage(out.buffer, [out.buffer]); } } return true; } } registerProcessor('pcm-worklet-processor', PCMWorkletProcessor);";
+
+  let speaker = { audioCtx: null, node: null, sink: null, mic: null, socket: null, previewSocket: null, broadcasting: false };
+
+  function buildEqBars() {
+    const wrap = $("#eq-bars"); wrap.innerHTML = "";
+    for (let i = 0; i < 7; i++) {
+      const bar = document.createElement("div");
+      bar.className = "eq-bar w-2 rounded-full bg-gold-400/80";
+      bar.style.height = "8%";
+      wrap.appendChild(bar);
+    }
+  }
+  function updateLevelMeter(arrayBuffer) {
+    const arr = new Int16Array(arrayBuffer);
+    let sum = 0;
+    for (let i = 0; i < arr.length; i++) { const v = arr[i] / 32768; sum += v * v; }
+    const level = Math.min(1, Math.sqrt(sum / arr.length) * 5);
+    $$(".eq-bar").forEach((bar) => {
+      const jitter = 0.65 + Math.random() * 0.35;
+      bar.style.height = Math.max(8, level * jitter * 100) + "%";
+    });
+  }
+  function addSpeakerPreview(text) {
+    const box = $("#speaker-preview");
+    const row = document.createElement("p");
+    row.className = "caption-row border-b border-ink-700/60 pb-2";
+    row.textContent = text;
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+  }
+  function setLivePartial(text) {
+    const box = $("#speaker-preview");
+    let live = document.getElementById("live-partial");
+    if (!text) { if (live) live.remove(); return; }
+    if (!live) {
+      live = document.createElement("p");
+      live.id = "live-partial";
+      live.className = "caption-row italic text-gold-300/70 border-b border-ink-700/60 pb-2";
+      box.prepend(live);
+    }
+    live.textContent = "… " + text;
+    box.scrollTop = 0;
+  }
+  function enterSpeaker(sessionId, name) {
+    setHeader({ back: true, title: name || "Broadcast" });
+    $("#speaker-preview").innerHTML = "";
+    buildEqBars();
+    setBroadcastButton(false);
+
+    const link = location.href.split("?")[0] + "?view=listener&session=" + sessionId + (name ? "&name=" + encodeURIComponent(name) : "");
+    $("#share-link").value = link;
+    $("#qr-code").src = "https://api.qrserver.com/v1/create-qr-code/?size=256x256&margin=0&data=" + encodeURIComponent(link);
+
+    const base = apiBase();
+    $("#dl-srt-both").href = base + "/api/sessions/" + sessionId + "/subtitles.srt?lang=both";
+    $("#dl-srt-orig").href = base + "/api/sessions/" + sessionId + "/subtitles.srt?lang=original";
+    $("#dl-vtt").href      = base + "/api/sessions/" + sessionId + "/subtitles.vtt?lang=both";
+    $("#dl-json").href     = base + "/api/sessions/" + sessionId + "/subtitles.json";
+    $("#dl-txt").href      = base + "/api/sessions/" + sessionId + "/transcript.txt";
+
+    const previewSocket = new WebSocket(wsBase() + "/ws/subtitles/" + sessionId);
+    previewSocket.onmessage = (evt) => {
+      const msg = JSON.parse(evt.data);
+      if (msg.type === "partial") setLivePartial(msg.text);
+      if (msg.type === "final") { setLivePartial(""); addSpeakerPreview("🗣️ " + msg.text); }
+      if (msg.type === "translation") addSpeakerPreview("🌐 " + msg.text);
+      if (msg.type === "error") showToast("Processing error: " + msg.message);
+    };
+    speaker.previewSocket = previewSocket;
+  }
+  function setBroadcastButton(isLive) {
+    speaker.broadcasting = isLive;
+    $("#btn-toggle-broadcast-label").textContent = isLive ? "Stop broadcasting" : "Start broadcasting";
+    $("#btn-toggle-broadcast").classList.toggle("bg-live-500", !isLive);
+    $("#btn-toggle-broadcast").classList.toggle("bg-ink-700", isLive);
+    setHeader({ back: true, title: $("#header-title").textContent, live: isLive });
+  }
+  async function startBroadcast() {
+    try {
+      speaker.mic = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    } catch { showToast("Microphone permission denied or unavailable."); return; }
+    try {
+      speaker.audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+      const blobUrl = URL.createObjectURL(new Blob([WORKLET_SRC], { type: "application/javascript" }));
+      await speaker.audioCtx.audioWorklet.addModule(blobUrl);
+      const source = speaker.audioCtx.createMediaStreamSource(speaker.mic);
+      speaker.node = new AudioWorkletNode(speaker.audioCtx, "pcm-worklet-processor");
+      speaker.socket = new WebSocket(wsBase() + "/ws/audio/" + state.sessionId);
+      speaker.socket.binaryType = "arraybuffer";
+      speaker.node.port.onmessage = (e) => {
+        updateLevelMeter(e.data);
+        if (speaker.socket && speaker.socket.readyState === WebSocket.OPEN) speaker.socket.send(e.data);
+      };
+      source.connect(speaker.node);
+      speaker.sink = speaker.audioCtx.createGain();
+      speaker.sink.gain.value = 0;
+      speaker.node.connect(speaker.sink);
+      speaker.sink.connect(speaker.audioCtx.destination);
+      setBroadcastButton(true);
+    } catch { showToast("Couldn't start the audio pipeline."); stopBroadcast(false); }
+  }
+  function stopBroadcast(updateUi) {
+    if (updateUi === undefined) updateUi = true;
+    if (speaker.node) speaker.node.disconnect();
+    if (speaker.sink) speaker.sink.disconnect();
+    if (speaker.audioCtx) speaker.audioCtx.close().catch(() => {});
+    if (speaker.mic) speaker.mic.getTracks().forEach((t) => t.stop());
+    if (speaker.socket) speaker.socket.close();
+    if (speaker.previewSocket) speaker.previewSocket.close();
+    speaker = { audioCtx: null, node: null, sink: null, mic: null, socket: null, previewSocket: null, broadcasting: false };
+    if (updateUi) setBroadcastButton(false);
+  }
+  $("#btn-toggle-broadcast").addEventListener("click", () => { speaker.broadcasting ? stopBroadcast() : startBroadcast(); });
+  $("#btn-copy-link").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("#share-link").value); showToast("Link copied."); }
+    catch { showToast("Couldn't copy."); }
+  });
+
+  // LISTENER
+  let listenerSocket = null;
+  let listenerShouldReconnect = false;
+  let fontScale = 2;
+  const captionRowMap = new Map();        // index -> { origEl, transEl }
+  const pendingTranslations = new Map();  // index -> text
+
+  function enterListener(sessionId, name) {
+    setHeader({ back: true, title: name || "Listening" });
+    $("#caption-history-original").innerHTML = "";
+    $("#caption-history-translation").innerHTML = "";
+    captionRowMap.clear();
+    pendingTranslations.clear();
+    $("#live-original").textContent = "Waiting for the speaker to start…";
+    $("#live-translation").textContent = "";
+    $("#upload-progress-banner").classList.add("hidden");
+    applyFontScale();
+
+    const base = apiBase();
+    $("#ls-dl-txt").href      = base + "/api/sessions/" + sessionId + "/transcript.txt";
+    $("#ls-dl-srt-both").href = base + "/api/sessions/" + sessionId + "/subtitles.srt?lang=both";
+    $("#ls-dl-srt-orig").href = base + "/api/sessions/" + sessionId + "/subtitles.srt?lang=original";
+    $("#ls-dl-vtt").href      = base + "/api/sessions/" + sessionId + "/subtitles.vtt?lang=both";
+    $("#ls-dl-json").href     = base + "/api/sessions/" + sessionId + "/subtitles.json";
+
+    connectListener(sessionId);
+  }
+  function connectListener(sessionId) {
+    listenerShouldReconnect = true;
+    listenerSocket = new WebSocket(wsBase() + "/ws/subtitles/" + sessionId);
+    listenerSocket.onopen = () => setConnStatus(true);
+    listenerSocket.onclose = () => {
+      setConnStatus(false);
+      if (listenerShouldReconnect) setTimeout(() => connectListener(sessionId), 2000);
+    };
+    listenerSocket.onerror = () => listenerSocket.close();
+    listenerSocket.onmessage = (evt) => handleSubtitleMessage(JSON.parse(evt.data));
+  }
+  function disconnectListener() {
+    listenerShouldReconnect = false;
+    if (listenerSocket) listenerSocket.close();
+    listenerSocket = null;
+  }
+  function handleSubtitleMessage(msg) {
+    if (msg.type === "meta") {
+      setHeader({ back: true, title: msg.session.name, live: msg.session.is_broadcasting });
+      const banner = document.getElementById("upload-progress-banner");
+      const label = document.getElementById("upload-banner-label");
+      const bar = document.getElementById("upload-banner-bar");
+      const pct = document.getElementById("upload-banner-pct");
+      if (msg.session.mode === "upload") {
+        banner.classList.remove("hidden");
+        label.textContent = msg.session.status === "done" ? "Finished — downloads ready below" : "Transcribing…";
+        const p = Math.round((msg.session.progress || 0) * 100);
+        bar.style.width = p + "%"; pct.textContent = p + "%";
+      } else {
+        banner.classList.add("hidden");
+      }
+    } else if (msg.type === "progress") {
+      const bar = document.getElementById("upload-banner-bar");
+      const pct = document.getElementById("upload-banner-pct");
+      const label = document.getElementById("upload-banner-label");
+      const p = Math.round((msg.progress || 0) * 100);
+      if (bar) bar.style.width = p + "%";
+      if (pct) pct.textContent = p + "%";
+      if (label && msg.done) label.textContent = "Finished — downloads ready below";
+    } else if (msg.type === "partial") {
+      $("#live-original").textContent = msg.text;
+      $("#live-original").classList.add("opacity-80");
+    } else if (msg.type === "final") {
+      $("#live-original").textContent = msg.text;
+      $("#live-original").classList.remove("opacity-80");
+      $("#live-translation").textContent = "translating…";
+      appendHistoryRow(typeof msg.index === "number" ? msg.index : null, msg.text);
+    } else if (msg.type === "translation") {
+      $("#live-translation").textContent = msg.text;
+      updateHistoryTranslation(typeof msg.index === "number" ? msg.index : null, msg.text);
+    } else if (msg.type === "error") {
+      showToast("Processing error: " + (msg.message || "unknown"));
+    }
+  }
+  function appendHistoryRow(index, originalText) {
+    const origCol = $("#caption-history-original");
+    const transCol = $("#caption-history-translation");
+    const origEl = document.createElement("p");
+    origEl.className = "caption-row text-sm text-gold-300/90 leading-relaxed";
+    origEl.textContent = originalText;
+    const transEl = document.createElement("p");
+    transEl.className = "caption-row text-sm text-seaglass-400/90 leading-relaxed";
+    transEl.textContent = "…";
+
+    // Apply any buffered translation immediately
+    if (typeof index === "number" && pendingTranslations.has(index)) {
+      transEl.textContent = pendingTranslations.get(index);
+      pendingTranslations.delete(index);
+    }
+    origCol.appendChild(origEl);
+    transCol.appendChild(transEl);
+
+    if (typeof index === "number") {
+      captionRowMap.set(index, { origEl, transEl });
+    }
+    // Auto-scroll both columns
+    const wrap = $("#caption-history-wrap");
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+  function updateHistoryTranslation(index, text) {
+    if (typeof index === "number") {
+      const entry = captionRowMap.get(index);
+      if (entry) {
+        entry.transEl.textContent = text;
+      } else {
+        pendingTranslations.set(index, text);
+      }
+    } else {
+      // No index -- update last translation row
+      const transCol = $("#caption-history-translation");
+      const last = transCol.lastElementChild;
+      if (last) last.textContent = text;
+    }
+    const wrap = $("#caption-history-wrap");
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  $$(".show-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $$(".show-toggle").forEach((b) => { b.classList.remove("bg-ink-700", "text-mist-100"); b.classList.add("text-mist-400"); });
+      btn.classList.add("bg-ink-700", "text-mist-100");
+      btn.classList.remove("text-mist-400");
+      const mode = btn.dataset.show;
+      $("#view-listener").classList.toggle("hide-original", mode === "translation");
+      $("#view-listener").classList.toggle("hide-translation", mode === "original");
+    });
+  });
+
+  function applyFontScale() {
+    $("#view-listener").setAttribute("data-scale", fontScale);
+  }
+  $("#btn-font-up").addEventListener("click", () => { fontScale = Math.min(4, fontScale + 1); applyFontScale(); });
+  $("#btn-font-down").addEventListener("click", () => { fontScale = Math.max(1, fontScale - 1); applyFontScale(); });
+
+  // SETTINGS
+  $("#btn-back").addEventListener("click", () => navigate("lobby"));
+  $("#btn-settings").addEventListener("click", () => {
+    $("#input-backend-host").value = backendHost();
+    $("#settings-backdrop").classList.remove("hidden");
+  });
+  $("#btn-settings-cancel").addEventListener("click", () => $("#settings-backdrop").classList.add("hidden"));
+  $("#btn-settings-save").addEventListener("click", () => {
+    const val = $("#input-backend-host").value.trim();
+    if (val) localStorage.setItem("nerdearla_backend_host", val);
+    location.reload();
+  });
+
+  // UPLOAD
+  (function () {
+    const modal = document.getElementById("upload-backdrop");
+    if (!modal) return;
+    const openBtn = document.getElementById("btn-upload-open");
+    const cancelBtn = document.getElementById("upload-cancel");
+    const submitBtn = document.getElementById("upload-submit");
+    const dropzone = document.getElementById("upload-dropzone");
+    const fileInput = document.getElementById("input-upload-file");
+    const fileLabel = document.getElementById("upload-filename");
+    const nameInput = document.getElementById("upload-name");
+    const targetSelect = document.getElementById("upload-target");
+    const progWrap = document.getElementById("upload-progress-wrap");
+    const progBar = document.getElementById("upload-progress-bar");
+    const progPct = document.getElementById("upload-progress-pct");
+    const progLabel = document.getElementById("upload-progress-label");
+
+    let selectedFile = null;
+    function setFile(file) {
+      selectedFile = file || null;
+      if (file) {
+        fileLabel.textContent = file.name;
+        if (!nameInput.value) nameInput.value = file.name.replace(/\.[^.]+$/, "");
+      } else {
+        fileLabel.textContent = "Click to choose a file, or drop one here";
+      }
+      submitBtn.disabled = !selectedFile;
+    }
+    openBtn.addEventListener("click", () => { modal.classList.remove("hidden"); setFile(null); progWrap.classList.add("hidden"); nameInput.value = ""; });
+    cancelBtn.addEventListener("click", () => modal.classList.add("hidden"));
+    dropzone.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => setFile(fileInput.files[0] || null));
+    ["dragenter", "dragover"].forEach((evt) => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add("border-gold-400/60", "bg-ink-900"); }));
+    ["dragleave", "drop"].forEach((evt) => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove("border-gold-400/60", "bg-ink-900"); }));
+    dropzone.addEventListener("drop", (e) => { const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) setFile(f); });
+
+    async function doUpload() {
+      if (!selectedFile) return;
+      const name = (nameInput.value || "").trim() || selectedFile.name;
+      const target = targetSelect.value;
+      const form = new FormData();
+      form.append("name", name);
+      form.append("target_language", target);
+      form.append("file", selectedFile, selectedFile.name);
+
+      progWrap.classList.remove("hidden");
+      progLabel.textContent = "Uploading…";
+      progBar.style.width = "0%";
+      progPct.textContent = "0%";
+      submitBtn.disabled = true;
+
+      try {
+        const session = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", apiBase() + "/api/sessions/upload");
+          xhr.upload.onprogress = (e) => {
+            if (!e.lengthComputable) return;
+            const pct = Math.round((e.loaded / e.total) * 100);
+            progBar.style.width = pct + "%";
+            progPct.textContent = pct + "%";
+          };
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try { resolve(JSON.parse(xhr.responseText)); } catch (err) { reject(new Error("Bad response")); }
+            } else { reject(new Error("Upload failed (" + xhr.status + "): " + xhr.responseText)); }
+          };
+          xhr.onerror = () => reject(new Error("Network error during upload"));
+          xhr.send(form);
+        });
+        progLabel.textContent = "Processing on server…";
+        modal.classList.add("hidden");
+        navigate("listener", session.id, { name: session.name });
+      } catch (err) {
+        alert(err.message || "Upload failed");
+        submitBtn.disabled = false;
+        progWrap.classList.add("hidden");
+      }
+    }
+    submitBtn.addEventListener("click", doUpload);
+
+    async function loadSample(lang) {
+      const url = "/samples/sample_" + lang + ".mp3";
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Sample not found (" + res.status + ")");
+        const blob = await res.blob();
+        const file = new File([blob], "sample_" + lang + ".mp3", { type: "audio/mpeg" });
+        modal.classList.remove("hidden");
+        nameInput.value = lang === "en" ? "Sample: English talk" : "Sample: Charla en español";
+        targetSelect.value = "auto";
+        setFile(file);
+        setTimeout(doUpload, 150);
+      } catch (err) { alert("Couldn't load sample — " + err.message); }
+    }
+    const btnEn = document.getElementById("btn-sample-en");
+    const btnEs = document.getElementById("btn-sample-es");
+    if (btnEn) btnEn.addEventListener("click", () => loadSample("en"));
+    if (btnEs) btnEs.addEventListener("click", () => loadSample("es"));
+  })();
+
+  // INIT
+  function init() {
+    const p = new URLSearchParams(location.search);
+    const view = p.get("view") || "lobby";
+    const session = p.get("session");
+    const nameParam = p.get("name");
+    if (view === "lobby" || !session) {
+      showView("lobby"); setHeader(); refreshSessions(); sessionsPoll(true);
+    } else if (view === "speaker") {
+      showView("speaker"); state.sessionId = session; enterSpeaker(session, nameParam);
+    } else if (view === "listener") {
+      showView("listener"); state.sessionId = session; enterListener(session, nameParam);
+    }
+  }
+  init();
+})();
+</script>
+</body>
+</html>
